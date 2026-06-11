@@ -4,27 +4,6 @@
 
 <h1 align="center">🚀 Ai-iERP: Your Personal AI Agent Desktop App</h1>
 
-<p align="center">
-  • Open Source Claude Cowork • One-Click Install 
-</p>
-
-<p align="center">
-  <a href="./README_zh.md">中文文档</a> •
-  <a href="#features">Features</a> •
-  <a href="#demo">Demo</a> •
-  <a href="#installation">Downloads</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#skills">Skills Library</a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS-blue" alt="Platform" />
-  <img src="https://img.shields.io/badge/License-MIT-green" alt="License" />
-  <img src="https://img.shields.io/badge/Node.js-18+-brightgreen" alt="Node.js" />
-  <a href="https://discord.gg/pynjtQDf"><img src="https://img.shields.io/discord/1493588403260883078?logo=discord&label=Discord&color=5865F2" alt="Discord" /></a>
-  <a href="#community"><img src="https://img.shields.io/badge/WeChat-微信群-07C160?logo=wechat&logoColor=white" alt="WeChat" /></a>
-</p>
-
 ---
 
 Ai-iERP is a free, open-source AI agent desktop application for Windows and macOS. It wraps Claude Code, OpenAI, Gemini, DeepSeek, and other AI models into a user-friendly GUI with one-click installation — no coding required. Key capabilities include VM-level sandbox isolation (WSL2 on Windows, Lima on macOS), a built-in Skills system for generating PPTX, DOCX, XLSX, and PDF documents, MCP (Model Context Protocol) integration for connecting to browsers, Notion, and other desktop apps, GUI automation via computer use, and remote control through Feishu (Lark) and Slack. Ai-iERP is the open-source implementation of Claude Cowork, designed to make AI-powered desktop automation accessible to everyone.
@@ -225,30 +204,6 @@ Ai-iERP supports remote control through Feishu (Lark) and Slack integration, all
 **Is my data safe? Does Ai-iERP send data to external servers?**
 Ai-iERP runs locally on your machine. Your files stay in your workspace. The only external communication is with the AI model API you configure (e.g., Anthropic, OpenRouter). No data is sent to Ai-iERP servers.
 
----
-
-## 🛠️ Contributing
-
-We welcome contributions! Whether it's a new Skill, a UI fix, or a security improvement:
-
-1. Fork the repo.
-2. Create a branch (`git checkout -b feature/NewSkill`).
-3. Submit a PR.
-
----
-
-## 💬 Community
-
-Join our community for support and discussion:
-
-- **Discord**: [Join our Discord server](https://discord.gg/pynjtQDf) — for real-time chat, support, and development discussion.
-- **WeChat**: Scan the QR code below to join our WeChat group (Chinese community).
-
-<p align="center">
-  <img src="resources/WeChat.jpg" alt="WeChat Group" width="200" />
-</p>
-
----
 
 ## 📄 License
 

@@ -61,7 +61,7 @@ asarUnpack:
   - node_modules/utf-8-validate/**/*.node
 
 win:
-  icon: resources/logo.png
+  icon: resources/icon.png
   target:
     - target: nsis
       arch:
@@ -79,6 +79,10 @@ win:
       to: wsl-agent
     - from: .claude/skills
       to: skills
+    - from: resources/icon.png
+      to: icon.png
+    - from: resources/tray-icon.png
+      to: tray-icon.png
 
 mac:
   icon: resources/icon.icns
