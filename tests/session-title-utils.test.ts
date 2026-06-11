@@ -48,16 +48,16 @@ describe('session title utils', () => {
     ).toBe(false);
   });
 
-  it('builds a bilingual prompt requiring <=15 chars and same language', () => {
-    const prompt = buildTitlePrompt('帮我做一个PPT');
-    expect(prompt).toContain('15');
-    expect(prompt).toContain('同语言');
-    expect(prompt).toContain('same language');
+  it('builds a prompt requiring the same language and no Chinese characters', () => {
+    const prompt = buildTitlePrompt('Help me make a PPT');
+    expect(prompt).toContain('Generate a short conversation title');
+    expect(prompt).toContain('SAME language');
+    expect(prompt).toContain('NEVER use Chinese characters');
   });
 
   it('normalizes generated title by taking first line and stripping quotes', () => {
-    const title = normalizeGeneratedTitle('"  我的标题  "\n第二行');
-    expect(title).toBe('我的标题');
+    const title = normalizeGeneratedTitle('"  My Title  "\nSecond line');
+    expect(title).toBe('My Title');
   });
 
   it('drops synthetic empty placeholder titles', () => {

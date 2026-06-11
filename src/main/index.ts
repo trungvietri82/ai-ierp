@@ -49,6 +49,31 @@ import {
   setLogoDataUrl,
   clearLogo,
 } from './config/branding-store';
+import { verifyLicenseKey, getMachineId } from './license/license-verifier';
+import {
+  getStoredLicenseKey,
+  setStoredLicenseKey,
+  clearStoredLicenseKey,
+} from './license/license-store';
+import {
+  listReports,
+  getReport,
+  saveStaticReport,
+  saveDynamicReport,
+  saveAiReport,
+  duplicateReport,
+  renameReport,
+  deleteReport,
+} from './bi/bi-report-store';
+import { renderReport } from './bi/bi-report-runner';
+import { analyzeSessionForReport } from './bi/bi-report-analyzer';
+import { buildReportTemplate } from './bi/bi-report-builder';
+import { getTokenUsageLog } from './usage/token-usage';
+import type {
+  SaveStaticReportInput,
+  SaveDynamicReportInput,
+  SaveAiReportInput,
+} from '../shared/bi-report';
 import { mcpConfigStore } from './mcp/mcp-config-store';
 import { getSandboxAdapter, shutdownSandbox } from './sandbox/sandbox-adapter';
 import { SandboxSync } from './sandbox/sandbox-sync';
@@ -473,7 +498,7 @@ function createWindow() {
     try {
       allowedOrigins.add(new URL(process.env.VITE_DEV_SERVER_URL).origin);
     } catch {
-      // 忽略无效的开发服务地址
+      // 
     }
   }
   const allowedProtocols = new Set<string>(['file:', 'devtools:']);
@@ -593,7 +618,15 @@ function createWindow() {
  * Each session can have its own cwd that differs from this default
  */
 function initializeDefaultWorkingDir(): string {
-  // Create default working directory in user data path (this is the permanent global default)
+  // Prefer a folder the user configured in Settings (persisted as defaultWorkdir),
+  // so new chats default to it. Fall back to the app's default_working_dir.
+  const configured = configStore.get('defaultWorkdir');
+  if (typeof configured === 'string' && configured.trim() && fs.existsSync(configured)) {
+    currentWorkingDir = configured;
+    log('[App] Global default working directory (from settings):', currentWorkingDir);
+    return currentWorkingDir;
+  }
+
   const userDataPath = app.getPath('userData');
   const defaultDir = join(userDataPath, 'default_working_dir');
 
@@ -653,6 +686,16 @@ async function setWorkingDir(
     SandboxSync.clearSession(sessionId);
     const { LimaSync } = await import('./sandbox/lima-sync');
     LimaSync.clearSession(sessionId);
+  } else {
+    // No session → this sets the GLOBAL default folder. Persist it so new chats
+    // (and future restarts) default to this folder.
+    currentWorkingDir = newDir;
+    try {
+      configStore.update({ defaultWorkdir: newDir });
+    } catch (error) {
+      logError('[App] Failed to persist default working directory:', error);
+    }
+    log('[App] Global default working directory set to:', newDir);
   }
 
   // Notify renderer of workdir change (for UI display)
@@ -709,7 +752,7 @@ async function startSandboxBootstrap(): Promise<void> {
   }
 }
 
-// 发送事件到渲染进程（含远程会话拦截）
+// Send events to the renderer process (with remote session interception)
 function sendToRenderer(event: ServerEvent) {
   const payload =
     'payload' in event
@@ -717,25 +760,25 @@ function sendToRenderer(event: ServerEvent) {
       : undefined;
   const sessionId = payload?.sessionId;
 
-  // 判断是否远程会话
+  // Check whether this is a remote session
   if (sessionId && remoteManager.isRemoteSession(sessionId)) {
-    // 处理远程会话事件
+    // Handle remote session events
 
-    // 拦截 stream.message，用于回传到远程通道
+    // Intercept stream.message to relay it back to the remote channel
     if (event.type === 'stream.message') {
       const message = payload.message as {
         role?: string;
         content?: Array<{ type: string; text?: string }>;
       };
       if (message?.role === 'assistant' && message?.content) {
-        // 提取助手文本内容
+        // Extract the assistant's text content
         const textContent = message.content
           .filter((c) => c.type === 'text' && c.text)
           .map((c) => c.text)
           .join('\n');
 
         if (textContent) {
-          // 发送到远程通道（带缓冲）
+          // Send to the remote channel (buffered)
           remoteManager.sendResponseToChannel(sessionId, textContent).catch((err: Error) => {
             logError('[Remote] Failed to send response to channel:', err);
           });
@@ -743,7 +786,7 @@ function sendToRenderer(event: ServerEvent) {
       }
     }
 
-    // 拦截 trace.step 作为工具进度
+    // Intercept trace.step as tool progress
     if (event.type === 'trace.step') {
       const step = payload.step as {
         type?: string;
@@ -768,20 +811,20 @@ function sendToRenderer(event: ServerEvent) {
       }
     }
 
-    // trace.update 预留；当前主要用 trace.step
+    // trace.update is reserved; currently we mainly use trace.step
 
-    // 拦截 session.status 用于清理
+    // Intercept session.status for cleanup
     if (event.type === 'session.status') {
       const status = payload.status as string;
       if (status === 'idle' || status === 'error') {
-        // 会话结束，清空缓冲
+        // Session ended, clear the buffer
         remoteManager.clearSessionBuffer(sessionId).catch((err: Error) => {
           logError('[Remote] Failed to clear session buffer:', err);
         });
       }
     }
 
-    // 拦截 permission.request
+    // Intercept permission.request
     if (event.type === 'permission.request' && payload.toolUseId && payload.toolName) {
       log('[Remote] Intercepting permission for remote session:', sessionId);
       remoteManager
@@ -805,11 +848,11 @@ function sendToRenderer(event: ServerEvent) {
         .catch((err) => {
           logError('[Remote] Failed to handle permission request:', err);
         });
-      return; // 不发送到本地 UI
+      return; // Do not send to the local UI
     }
   }
 
-  // 发送到本地 UI
+  // Send to the local UI
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.send('server-event', event);
   }
@@ -860,7 +903,7 @@ app
     // Initialize default working directory
     initializeDefaultWorkingDir();
     log('Working directory:', currentWorkingDir);
-    // 远程会话默认使用全局工作目录
+    // Remote sessions use the global working directory by default
     remoteManager.setDefaultWorkingDirectory(currentWorkingDir || undefined);
 
     // Initialize database
@@ -967,7 +1010,7 @@ app
           scheduledTaskStore.update(task.id, { title });
         }
         const started = await sessionManager.startSession(title, task.prompt, task.cwd);
-        // 定时任务创建的新会话需要主动同步到前端会话列表
+        // New sessions created by scheduled tasks must be actively synced to the frontend session list
         sendToRenderer({
           type: 'session.update',
           payload: { sessionId: started.id, updates: started },
@@ -984,7 +1027,7 @@ app
     });
     scheduledTaskManager.start();
 
-    // 初始化远程管理器
+    // Initialize the remote manager
     remoteManager.setRendererCallback(sendToRenderer);
     const agentExecutor: AgentExecutor = {
       startSession: async (title, prompt, cwd) => {
@@ -1022,7 +1065,7 @@ app
     };
     remoteManager.setAgentExecutor(agentExecutor);
 
-    // 远程控制启用时启动
+    // Start remote control when it is enabled
     if (remoteConfigStore.isEnabled()) {
       remoteManager.start().catch((error) => {
         logError('[App] Failed to start remote control:', error);
@@ -1082,7 +1125,7 @@ async function cleanupSandboxResources(): Promise<void> {
   tray?.destroy();
   tray = null;
 
-  // 停止远程控制
+  // Stop remote control
   try {
     log('[App] Stopping remote control...');
     await withTimeout(remoteManager.stop(), 5000, 'Remote control shutdown');
@@ -1543,6 +1586,200 @@ ipcMain.handle('dialog.selectFiles', async () => {
 
   return result.filePaths;
 });
+
+// License (offline Ed25519) IPC handlers
+ipcMain.handle('license.status', () => {
+  try {
+    const key = getStoredLicenseKey();
+    if (!key) return { valid: false, reason: 'Chưa kích hoạt', machineId: getMachineId() };
+    const status = verifyLicenseKey(key);
+    return { ...status, machineId: getMachineId() };
+  } catch (error) {
+    logError('[License] status error:', error);
+    return { valid: false, reason: 'Lỗi kiểm tra license', machineId: '' };
+  }
+});
+
+ipcMain.handle('license.activate', (_event, key: string) => {
+  try {
+    const status = verifyLicenseKey(typeof key === 'string' ? key : '');
+    if (status.valid) {
+      setStoredLicenseKey(key);
+    }
+    return { ...status, machineId: getMachineId() };
+  } catch (error) {
+    logError('[License] activate error:', error);
+    return { valid: false, reason: 'Lỗi kích hoạt license', machineId: getMachineId() };
+  }
+});
+
+ipcMain.handle('license.deactivate', () => {
+  try {
+    clearStoredLicenseKey();
+    return { ok: true };
+  } catch (error) {
+    logError('[License] deactivate error:', error);
+    return { ok: false };
+  }
+});
+
+ipcMain.handle('license.machineId', () => {
+  try {
+    return getMachineId();
+  } catch {
+    return '';
+  }
+});
+
+// Token & cost usage log (per question)
+ipcMain.handle('usage.getLog', () => {
+  try {
+    return getTokenUsageLog();
+  } catch (error) {
+    logError('[TokenUsage] getLog error:', error);
+    return [];
+  }
+});
+
+// BI Reports (saved dashboards: static snapshot + dynamic MCP-driven template)
+ipcMain.handle('bi.list', () => {
+  try {
+    return listReports();
+  } catch (error) {
+    logError('[BIReport] list error:', error);
+    return [];
+  }
+});
+
+ipcMain.handle('bi.get', (_event, id: string) => {
+  try {
+    return getReport(id);
+  } catch (error) {
+    logError('[BIReport] get error:', error);
+    return null;
+  }
+});
+
+ipcMain.handle('bi.saveStatic', (_event, input: SaveStaticReportInput) => {
+  try {
+    return saveStaticReport(input);
+  } catch (error) {
+    logError('[BIReport] saveStatic error:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('bi.saveDynamic', async (_event, input: SaveDynamicReportInput) => {
+  try {
+    // Convert the dashboard into a refreshable template (params + per-chart
+    // queries + a shell reading window.__REPORT_DATA__). Falls back to the raw
+    // snapshot if the builder cannot produce a usable template.
+    const built = await buildReportTemplate({
+      html: input.htmlContent,
+      capturedQueries: input.queries ?? [],
+      isAi: false,
+    });
+    return saveDynamicReport({
+      ...input,
+      htmlContent: built?.shellHtml ?? input.htmlContent,
+      params: built?.params ?? input.params ?? [],
+      queries: built?.queries ?? input.queries ?? [],
+    });
+  } catch (error) {
+    logError('[BIReport] saveDynamic error:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('bi.saveAi', async (_event, input: SaveAiReportInput) => {
+  try {
+    const built = await buildReportTemplate({
+      html: input.htmlContent,
+      capturedQueries: input.queries ?? [],
+      isAi: true,
+    });
+    return saveAiReport({
+      ...input,
+      htmlContent: built?.shellHtml ?? input.htmlContent,
+      params: built?.params ?? input.params ?? [],
+      queries: built?.queries ?? input.queries ?? [],
+    });
+  } catch (error) {
+    logError('[BIReport] saveAi error:', error);
+    throw error;
+  }
+});
+
+ipcMain.handle('bi.analyzeSession', (_event, sessionId: string) => {
+  try {
+    if (!sessionId || !sessionManager) {
+      return { queries: [], queryCount: 0, prompt: null };
+    }
+    const traceSteps = sessionManager.getTraceSteps(sessionId) as unknown as Array<{
+      toolName?: string;
+      toolInput?: Record<string, unknown>;
+      type?: string;
+    }>;
+    const messages = sessionManager.getMessages(sessionId) as unknown as Array<{
+      role: string;
+      content: unknown;
+    }>;
+    const mcp = sessionManager.getMCPManager();
+    const toolMap = new Map<string, string>();
+    if (mcp) {
+      for (const t of mcp.getTools()) toolMap.set(t.name, t.serverName);
+    }
+    return analyzeSessionForReport(traceSteps, toolMap, messages);
+  } catch (error) {
+    logError('[BIReport] analyzeSession error:', error);
+    return { queries: [], queryCount: 0, prompt: null };
+  }
+});
+
+ipcMain.handle(
+  'bi.duplicate',
+  (_event, id: string, title: string, description: string | null) => {
+    try {
+      return duplicateReport(id, title, description ?? null);
+    } catch (error) {
+      logError('[BIReport] duplicate error:', error);
+      throw error;
+    }
+  }
+);
+
+ipcMain.handle('bi.rename', (_event, id: string, title: string) => {
+  try {
+    renameReport(id, title);
+    return { ok: true };
+  } catch (error) {
+    logError('[BIReport] rename error:', error);
+    return { ok: false };
+  }
+});
+
+ipcMain.handle('bi.delete', (_event, id: string) => {
+  try {
+    deleteReport(id);
+    return { ok: true };
+  } catch (error) {
+    logError('[BIReport] delete error:', error);
+    return { ok: false };
+  }
+});
+
+ipcMain.handle(
+  'bi.render',
+  async (_event, id: string, paramValues?: Record<string, string | number>) => {
+    try {
+      const mcp = sessionManager?.getMCPManager() ?? null;
+      return await renderReport(id, paramValues, mcp);
+    } catch (error) {
+      logError('[BIReport] render error:', error);
+      throw error;
+    }
+  }
+);
 
 // Branding (white-label name + logo) IPC handlers
 ipcMain.handle('branding.get', () => {
@@ -2591,7 +2828,7 @@ ipcMain.handle('logs.isEnabled', () => {
 });
 
 // ============================================================================
-// 远程控制 IPC 处理
+// Remote control IPC handlers
 // ============================================================================
 
 ipcMain.handle('remote.getConfig', () => {
@@ -2989,12 +3226,31 @@ ipcMain.handle('sandbox.retrySetup', async () => {
 });
 
 async function handleClientEvent(event: ClientEvent): Promise<unknown> {
+  // License enforcement (defense-in-depth): the renderer LicenseGate is only UX
+  // and can be bypassed via DevTools — so refuse to run any agent session in the
+  // main process unless a valid license is active.
+  if (event.type === 'session.start' || event.type === 'session.continue') {
+    const lic = verifyLicenseKey(getStoredLicenseKey());
+    if (!lic.valid) {
+      sendToRenderer({
+        type: 'error',
+        payload: {
+          message: 'Ứng dụng chưa được kích hoạt license hợp lệ. Vui lòng nhập license key.',
+          code: 'LICENSE_REQUIRED',
+          action: 'open_license',
+        },
+      });
+      return null;
+    }
+  }
+
   // Check if configured before starting sessions
   if (event.type === 'session.start' && !configStore.hasUsableCredentialsForActiveSet()) {
     sendToRenderer({
       type: 'error',
       payload: {
-        message: '当前方案未配置可用凭证，请先在 API 设置中完成配置',
+        message:
+          'Phương án hiện tại chưa cấu hình thông tin xác thực khả dụng. Vui lòng hoàn tất cấu hình trong phần Cài đặt API.',
         code: 'CONFIG_REQUIRED_ACTIVE_SET',
         action: 'open_api_settings',
       },

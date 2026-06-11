@@ -17,6 +17,7 @@ import { useIPC } from './hooks/useIPC';
 import { useWindowSize } from './hooks/useWindowSize';
 import { Sidebar } from './components/Sidebar';
 import { WelcomeView } from './components/WelcomeView';
+import { BIReportsView } from './components/BIReportsView';
 import { PermissionDialog } from './components/PermissionDialog';
 import { PreviewPanel } from './components/PreviewPanel';
 import { SudoPasswordDialog } from './components/SudoPasswordDialog';
@@ -87,6 +88,7 @@ function App() {
   const clearGlobalNotice = useAppStore((s) => s.clearGlobalNotice);
   const setSandboxSetupComplete = useAppStore((s) => s.setSandboxSetupComplete);
   const setShowSettings = useAppStore((s) => s.setShowSettings);
+  const showBIReports = useAppStore((s) => s.showBIReports);
   const setSidebarCollapsed = useAppStore((s) => s.setSidebarCollapsed);
   const setContextPanelCollapsed = useAppStore((s) => s.setContextPanelCollapsed);
 
@@ -199,6 +201,10 @@ function App() {
               <Suspense fallback={<MainPanelFallback />}>
                 <SettingsPanel onClose={() => setShowSettings(false)} />
               </Suspense>
+            </PanelErrorBoundary>
+          ) : showBIReports ? (
+            <PanelErrorBoundary name="BIReportsView" resetKey="bi" fallback={<MainPanelFallback />}>
+              <BIReportsView />
             </PanelErrorBoundary>
           ) : activeSessionId ? (
             <PanelErrorBoundary

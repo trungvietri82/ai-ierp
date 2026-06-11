@@ -83,6 +83,9 @@ win:
       to: icon.png
     - from: resources/tray-icon.png
       to: tray-icon.png
+    # Pre-bundled offline runtime for the pptx/html2pptx skill (node deps + chromium)
+    - from: resources/pptx-runtime
+      to: pptx-runtime
 
 mac:
   icon: resources/icon.icns

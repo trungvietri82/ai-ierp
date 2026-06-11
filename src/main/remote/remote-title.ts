@@ -1,6 +1,6 @@
 /**
  * Remote Session Title Builder
- * 为远程会话生成标题
+ * Generates titles for remote sessions
  */
 
 /**

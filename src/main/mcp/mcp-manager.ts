@@ -341,10 +341,8 @@ export class MCPManager {
     const bundledNode = this.getBundledNodePath();
     if (!bundledNode) {
       const errorMessage =
-        'Bundled Node.js not found. Please reinstall the application.\n' +
-        '未找到内置的 Node.js。请重新安装应用。\n\n' +
-        'The application requires bundled Node.js to run MCP servers.\n' +
-        '应用需要内置的 Node.js 来运行 MCP 服务器。';
+        'Bundled Node.js not found. Please reinstall the application.\n\n' +
+        'The application requires bundled Node.js to run MCP servers.';
 
       logError('[MCPManager] Bundled Node.js not found');
       throw new Error(errorMessage);
@@ -1266,7 +1264,7 @@ export class MCPManager {
         logError(`[MCPManager]   1. Chrome failed to start`);
         logError(`[MCPManager]   2. Another process is using port 9222`);
         logError(`[MCPManager]   3. Firewall blocking the port`);
-        throw new Error('Chrome 浏览器未就绪，无法执行此操作: debug port did not become ready');
+        throw new Error('Chrome browser is not ready, cannot perform this operation: debug port did not become ready');
       }
 
       log(`[MCPManager] ✓ Chrome debug port is now ready`);
@@ -1295,7 +1293,7 @@ export class MCPManager {
             logError(`[MCPManager] Last error code: ${ve.code}, message: ${ve.message}`);
             logError(`[MCPManager] The chrome-devtools-mcp server may not be working correctly`);
             throw new Error(
-              'Chrome 浏览器未就绪，无法执行此操作: MCP connection verification failed after 5 attempts'
+              'Chrome browser is not ready, cannot perform this operation: MCP connection verification failed after 5 attempts'
             );
           }
         }
@@ -1304,7 +1302,7 @@ export class MCPManager {
       logError(`[MCPManager] ❌ Failed to start Chrome with debugging`);
       const startErrMsg = startError instanceof Error ? startError.message : String(startError);
       logError(`[MCPManager] Error: ${startErrMsg}`);
-      throw new Error(`Chrome 浏览器未就绪，无法执行此操作: ${startErrMsg}`);
+      throw new Error(`Chrome browser is not ready, cannot perform this operation: ${startErrMsg}`);
     }
   }
 
@@ -1647,7 +1645,7 @@ export class MCPManager {
 
         const toolErrorMessage = extractStructuredToolErrorMessage(result);
         if (shouldReconnectOnStructuredToolError(toolErrorMessage)) {
-          // 某些 MCP 服务会把连接错误包在结构化结果里而非直接抛异常，这里转为异常以复用统一重连逻辑。
+          // Some MCP servers wrap connection errors in a structured result instead of throwing directly; convert it to an exception here to reuse the unified reconnect logic.
           throw new Error(toolErrorMessage);
         }
         if (

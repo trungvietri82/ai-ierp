@@ -118,14 +118,14 @@ let currentAppName: string = '';
 let lastClickEntry: ClickHistoryEntry | null = null; // Track the most recent click for success verification
 
 const APP_NAME_ALIAS_GROUPS: string[][] = [
-  ['calendar', '日历'],
-  ['notes', '备忘录'],
-  ['music', '音乐'],
-  ['finder', '访达'],
-  ['system settings', 'settings', '系统设置'],
-  ['ticktick', '滴答清单'],
-  ['wechat', '微信'],
-  ['trash', '废纸篓'],
+  ['calendar', 'calendar'],
+  ['notes', 'notes'],
+  ['music', 'music'],
+  ['finder', 'finder'],
+  ['system settings', 'settings', 'system settings'],
+  ['ticktick', 'ticktick'],
+  ['wechat', 'wechat'],
+  ['trash', 'trash'],
   ['chrome', 'google chrome'],
 ];
 
@@ -321,13 +321,13 @@ function scoreDockItemAgainstDescription(itemName: string, description: string):
 
 function isDescriptionDockRelated(description: string): boolean {
   const normalized = normalizeText(description);
-  return /dock|下边栏|程序坞|底栏/.test(normalized);
+  return /dock|taskbar|bottom bar/.test(normalized);
 }
 
 function isLikelyAppLaunchVerification(question: string): boolean {
   const normalized = normalizeText(question);
-  const mentionsApp = /(app|application|应用|程序|软件)/i.test(normalized);
-  const mentionsMenuLike = /(menu|菜单|弹窗|popup|面板|widget|小组件|下拉)/i.test(normalized);
+  const mentionsApp = /(app|application|program|software)/i.test(normalized);
+  const mentionsMenuLike = /(menu|popup|panel|widget|dropdown)/i.test(normalized);
   return mentionsApp && !mentionsMenuLike;
 }
 
@@ -875,9 +875,9 @@ async function resolveCliclickPath(): Promise<string | null> {
     return envOverride;
   }
 
-  // 2) 内置随应用打包（推荐）
-  // 打包布局：Resources/tools/darwin-{arch}/bin/cliclick
-  // 旧版布局：Resources/tools/bin/cliclick
+  // 2) Bundled with the app (recommended)
+  // Bundle layout: Resources/tools/darwin-{arch}/bin/cliclick
+  // Legacy layout: Resources/tools/bin/cliclick
   const arch = process.arch === 'arm64' ? 'arm64' : 'x64';
   const archBundled = await resolveBundledExecutable(
     path.join('tools', `darwin-${arch}`, 'bin', 'cliclick')
@@ -1781,10 +1781,10 @@ async function executeCliclick(command: string): Promise<{ stdout: string; stder
     // Treat this as a hard failure to avoid reporting false-positive click success.
     if (/Accessibility privileges not enabled/i.test(result.stderr || '')) {
       const hint =
-        '\n\nmacOS 权限提示 / Permissions:\n' +
-        '- System Settings → Privacy & Security → Accessibility：允许 Open Cowork\n' +
-        '- 如果是终端运行：允许 Terminal/iTerm\n' +
-        '- 授权后请重启 Open Cowork 再重试\n';
+        '\n\nmacOS Permissions:\n' +
+        '- System Settings → Privacy & Security → Accessibility: allow Open Cowork\n' +
+        '- If running from a terminal: allow Terminal/iTerm\n' +
+        '- After granting access, restart Open Cowork and try again\n';
       throw new Error(
         `cliclick cannot control UI because Accessibility permission is not enabled.${hint}`
       );
@@ -1794,9 +1794,9 @@ async function executeCliclick(command: string): Promise<{ stdout: string; stder
   } catch (error: unknown) {
     const baseMessage = error instanceof Error ? error.message : String(error);
     const hint =
-      '\n\nmacOS 权限提示 / Permissions:\n' +
-      '- System Settings → Privacy & Security → Accessibility：允许 Open Cowork\n' +
-      '- System Settings → Privacy & Security → Automation：允许 Open Cowork 控制 “System Events”\n';
+      '\n\nmacOS Permissions:\n' +
+      '- System Settings → Privacy & Security → Accessibility: allow Open Cowork\n' +
+      '- System Settings → Privacy & Security → Automation: allow Open Cowork to control "System Events"\n';
     throw new Error(`${baseMessage}${hint}`);
   }
 }
@@ -3242,7 +3242,7 @@ async function performClick(
   const cliclickPath = await resolveCliclickPath();
 
   if (!cliclickPath) {
-    // 无 cliclick 时，使用 Quartz 事件作为降级方案
+    // When cliclick is unavailable, fall back to Quartz events
     await performMacClickViaQuartz(globalX, globalY, clickType, normalizedModifiers);
     await addClickToHistory(localX, localY, displayIndex, clickType);
     return `Performed ${clickType} click at (${localX}, ${localY}) on display ${displayIndex} (global: ${globalX}, ${globalY})`;
@@ -3818,9 +3818,9 @@ async function takeScreenshot(
   } catch (error: unknown) {
     const baseMessage = error instanceof Error ? error.message : String(error);
     const hint =
-      '\n\nmacOS 权限提示 / Permissions:\n' +
-      '- System Settings → Privacy & Security → Screen Recording：允许 Open Cowork\n' +
-      '- 重新启动应用后再试 / Restart the app and try again\n';
+      '\n\nmacOS Permissions:\n' +
+      '- System Settings → Privacy & Security → Screen Recording: allow Open Cowork\n' +
+      '- Restart the app and try again\n';
     throw new Error(`${baseMessage}${hint}`);
   }
 
@@ -4974,13 +4974,13 @@ async function analyzeScreenshotWithVision(
     // Get image dimensions
     const imageDims = await getImageDimensions(annotatedPath);
 
-    const prompt = `给我${elementDescription}的grounding坐标。
+    const prompt = `Give me the grounding coordinates of ${elementDescription}.
 
-**注意**：图片上可能有黄色圆圈标记，这些是之前点击过的位置（仅用于相对位置参考，它们并不一定是正确的点击位置），标记格式为"#序号"和已经归一化之后的"[y,x]"坐标。这些标记不是界面的一部分，请忽略它们，只定位实际的界面元素。
+**Note**: The image may contain yellow circle markers indicating previously clicked positions (for relative-position reference only; they are not necessarily the correct click positions). The marker format is "#index" along with the already-normalized "[y,x]" coordinates. These markers are not part of the interface, so please ignore them and only locate the actual UI element.
 
-坐标格式：归一化到0-1000，格式为[ymin, xmin, ymax, xmax]
+Coordinate format: normalized to 0-1000, in the form [ymin, xmin, ymax, xmax]
 
-返回JSON（不要markdown）:
+Return JSON (no markdown):
 {"box_2d": [ymin, xmin, ymax, xmax], "confidence": <0-100>}`;
 
     writeMCPLog(`[analyzeScreenshotWithVision] Prompt: ${prompt}`);

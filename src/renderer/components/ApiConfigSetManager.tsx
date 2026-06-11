@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { Layers, Plus, Save, Trash2, Pencil } from 'lucide-react';
 import type { ApiConfigSet } from '../types';
 
-// Known stored names of the built-in default config set (legacy zh + neutral).
+// Known stored names of the built-in default config set (legacy + neutral).
 // Displayed via i18n instead of the raw stored value.
-const DEFAULT_SET_NAMES = ['默认方案', 'Default'];
+const DEFAULT_SET_NAMES = ['Default Set', 'Default'];
 
 type PendingConfigSetAction =
   | { type: 'switch'; targetSetId: string };

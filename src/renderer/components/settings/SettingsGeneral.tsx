@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FolderOpen } from 'lucide-react';
 import { useAppStore } from '../../store';
+import { useIPC } from '../../hooks/useIPC';
 import { useBranding } from '../../store/selectors';
 
 export function SettingsGeneral() {
@@ -8,7 +10,20 @@ export function SettingsGeneral() {
   const settings = useAppStore((s) => s.settings);
   const updateSettings = useAppStore((s) => s.updateSettings);
   const setBranding = useAppStore((s) => s.setBranding);
+  const workingDir = useAppStore((s) => s.workingDir);
+  const { changeWorkingDir } = useIPC();
+  const [pickingFolder, setPickingFolder] = useState(false);
   const { appName, logoUrl } = useBranding();
+
+  const pickDefaultFolder = async () => {
+    setPickingFolder(true);
+    try {
+      // No sessionId → sets the global default folder for new chats (persisted).
+      await changeWorkingDir(undefined, workingDir || undefined);
+    } finally {
+      setPickingFolder(false);
+    }
+  };
   const currentLang = i18n.language.startsWith('zh')
     ? 'zh'
     : i18n.language.startsWith('vi')
@@ -62,7 +77,7 @@ export function SettingsGeneral() {
 
   const languages = [
     { code: 'en', nativeName: 'English' },
-    { code: 'zh', nativeName: '中文' },
+    { code: 'zh', nativeName: 'Chinese' },
     { code: 'vi', nativeName: 'Tiếng Việt' },
   ];
 
@@ -160,6 +175,31 @@ export function SettingsGeneral() {
               {t('general.resetLogo')}
             </button>
           </div>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="block text-xs text-text-secondary">Thư mục làm việc mặc định</label>
+          <div className="flex items-center gap-2">
+            <input
+              readOnly
+              value={workingDir || ''}
+              placeholder="(mặc định của ứng dụng)"
+              title={workingDir || ''}
+              className="flex-1 min-w-0 px-3 py-2.5 rounded-lg bg-background border border-border text-text-primary text-sm truncate"
+            />
+            <button
+              type="button"
+              onClick={() => void pickDefaultFolder()}
+              disabled={pickingFolder}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-surface text-sm text-text-secondary hover:text-text-primary hover:bg-surface-hover transition-colors disabled:opacity-60 flex-shrink-0"
+            >
+              <FolderOpen className="w-4 h-4" />
+              {pickingFolder ? 'Đang chọn…' : 'Chọn folder'}
+            </button>
+          </div>
+          <p className="text-xs text-text-muted">
+            Mọi cuộc trò chuyện mới sẽ mặc định dùng thư mục này.
+          </p>
         </div>
       </div>
 

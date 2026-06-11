@@ -230,6 +230,19 @@ function getBundledNodePaths(): { node: string; npx: string } | null {
 }
 
 /**
+ * Resolve the pre-bundled pptx/html2pptx offline runtime node_modules dir.
+ * Shipped via extraResources (packaged) or resources/pptx-runtime (dev).
+ * Returns null when not present so callers can fall back to runtime install.
+ */
+function resolveBundledPptxRuntime(): string | null {
+  const base = app.isPackaged
+    ? path.join(process.resourcesPath, 'pptx-runtime')
+    : path.join(__dirname, '..', '..', 'resources', 'pptx-runtime');
+  const nm = path.join(base, 'node_modules');
+  return fs.existsSync(path.join(nm, 'pptxgenjs')) ? nm : null;
+}
+
+/**
  * Resolve bundled Python bin directory path (if available).
  * Checks packaged and dev layouts, returns the bin dir containing python3.
  */
@@ -656,6 +669,13 @@ export class ClaudeAgentRunner {
       if (fs.existsSync(path.join(pythonBinDir, pipExe))) {
         hints.push(`- pip3: ${path.join(pythonBinDir, pipExe)}`);
       }
+    }
+
+    const pptxRuntime = resolveBundledPptxRuntime();
+    if (pptxRuntime) {
+      hints.push(
+        `- pptx/html2pptx offline deps (set NODE_PATH to this, and PLAYWRIGHT_BROWSERS_PATH=0): ${pptxRuntime}`
+      );
     }
 
     if (hints.length === 0) return '';
@@ -1236,10 +1256,10 @@ ${hints.join('\n')}
 
     const controller = new AbortController();
     try {
-      // SDK 会在同一 AbortSignal 上挂载较多监听器，放开上限避免无意义告警干扰排错。
+      // The SDK attaches many listeners to the same AbortSignal; remove the limit to avoid meaningless warnings that interfere with debugging.
       setMaxListeners(0, controller.signal);
     } catch {
-      // 旧运行时不支持 EventTarget 调整监听上限时忽略即可。
+      // Older runtimes do not support adjusting the EventTarget listener limit; ignore in that case.
     }
     this.activeControllers.set(session.id, controller);
 
@@ -2052,7 +2072,7 @@ ${hints.join('\n')}
               const serverKey = config.name;
 
               if (config.type === 'stdio') {
-                // 当命令是 npx 或 node 时优先使用内置路径
+                // When the command is npx or node, prefer the bundled path
                 const command =
                   config.command === 'npx' && bundledNpx
                     ? bundledNpx
@@ -2060,7 +2080,7 @@ ${hints.join('\n')}
                       ? bundledNodePaths.node
                       : config.command;
 
-                // 使用内置 npx/node 时，将内置 node bin 注入 PATH
+                // When using bundled npx/node, inject the bundled node bin into PATH
                 const serverEnv = { ...config.env };
                 if (bundledNodePaths && (config.command === 'npx' || config.command === 'node')) {
                   const nodeBinDir = path.dirname(bundledNodePaths.node);

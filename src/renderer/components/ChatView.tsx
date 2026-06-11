@@ -253,7 +253,7 @@ export function ChatView() {
       setShowScrollToBottom(distanceToBottom > 240);
     };
     updateScrollState();
-    // 用户阅读旧消息时，阻止新消息自动滚动打断视线
+    // While the user is reading older messages, prevent new messages from auto-scrolling and interrupting
     const onScroll = () => updateScrollState();
     container.addEventListener('scroll', onScroll, { passive: true });
     return () => container.removeEventListener('scroll', onScroll);

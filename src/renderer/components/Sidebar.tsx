@@ -11,9 +11,9 @@ import {
   Monitor,
   Settings,
   Search as SearchIcon,
-  Plus,
   ListChecks,
   Check,
+  BarChart3,
 } from 'lucide-react';
 import type { Session } from '../types';
 import { useBranding } from '../store/selectors';
@@ -38,6 +38,7 @@ export function Sidebar() {
   const sidebarCollapsed = useAppStore((s) => s.sidebarCollapsed);
   const toggleSidebar = useAppStore((s) => s.toggleSidebar);
   const setShowSettings = useAppStore((s) => s.setShowSettings);
+  const setShowBIReports = useAppStore((s) => s.setShowBIReports);
   const {
     deleteSession,
     batchDeleteSessions,
@@ -237,7 +238,7 @@ export function Sidebar() {
             className="w-9 h-9 rounded-2xl flex items-center justify-center bg-background hover:bg-surface-hover transition-colors text-text-primary border border-border-subtle"
             title={t('sidebar.newTask')}
           >
-            <Plus className="w-4 h-4" />
+            <img src="/icon_AI_square.png" alt="" className="w-4 h-4 object-contain" />
           </button>
         </div>
 
@@ -303,8 +304,20 @@ export function Sidebar() {
           onClick={handleNewSession}
           className="mt-3 w-full flex items-center gap-2 rounded-xl bg-background/60 px-3 py-2 text-left text-text-primary hover:bg-surface-hover transition-colors"
         >
-          <Plus className="w-4 h-4 text-text-secondary flex-shrink-0" />
+          <img
+            src="/icon_AI_square.png"
+            alt=""
+            className="w-4 h-4 object-contain flex-shrink-0"
+          />
           <span className="text-[13px] font-medium">{t('sidebar.newTask')}</span>
+        </button>
+
+        <button
+          onClick={() => setShowBIReports(true)}
+          className="mt-2 w-full flex items-center gap-2 rounded-xl bg-background/60 px-3 py-2 text-left text-text-primary hover:bg-surface-hover transition-colors"
+        >
+          <BarChart3 className="w-4 h-4 text-text-secondary flex-shrink-0" />
+          <span className="text-[13px] font-medium">Báo cáo BI</span>
         </button>
 
         {sessions.length > 0 && (

@@ -86,6 +86,7 @@ interface AppState {
   contextPanelCollapsed: boolean;
   showSettings: boolean;
   settingsTab: string | null;
+  showBIReports: boolean;
 
   // Permission
   pendingPermission: PermissionRequest | null;
@@ -106,7 +107,7 @@ interface AppState {
   branding: { appName: string; logoDataUrl: string };
 
   // In-app file preview target (null = closed)
-  previewFile: { path: string; cwd?: string } | null;
+  previewFile: { path: string; cwd?: string; reportId?: string; reportType?: string } | null;
   globalNotice: GlobalNotice | null;
 
   // Working directory
@@ -160,6 +161,7 @@ interface AppState {
   setContextPanelCollapsed: (collapsed: boolean) => void;
   setShowSettings: (show: boolean) => void;
   setSettingsTab: (tab: string | null) => void;
+  setShowBIReports: (show: boolean) => void;
 
   setPendingPermission: (permission: PermissionRequest | null) => void;
 
@@ -171,7 +173,9 @@ interface AppState {
   // Config actions
   setAppConfig: (config: AppConfig | null) => void;
   setBranding: (branding: { appName: string; logoDataUrl: string }) => void;
-  setPreviewFile: (file: { path: string; cwd?: string } | null) => void;
+  setPreviewFile: (
+    file: { path: string; cwd?: string; reportId?: string; reportType?: string } | null
+  ) => void;
   setIsConfigured: (configured: boolean) => void;
   setShowConfigModal: (show: boolean) => void;
   markInitialConfigStatusSeen: () => void;
@@ -234,6 +238,7 @@ export const useAppStore = create<AppState>((set) => ({
   sidebarCollapsed: false,
   contextPanelCollapsed: false,
   showSettings: false,
+  showBIReports: false,
   settingsTab: null,
   pendingPermission: null,
   pendingSudoPassword: null,
@@ -296,7 +301,8 @@ export const useAppStore = create<AppState>((set) => ({
       };
     }),
 
-  setActiveSession: (sessionId) => set({ activeSessionId: sessionId }),
+  setActiveSession: (sessionId) =>
+    set({ activeSessionId: sessionId, showBIReports: false, showSettings: false }),
 
   // Message actions
   addMessage: (sessionId, message) =>
@@ -550,8 +556,11 @@ export const useAppStore = create<AppState>((set) => ({
     set((state) => ({ contextPanelCollapsed: !state.contextPanelCollapsed })),
   setSidebarCollapsed: (collapsed) => set({ sidebarCollapsed: collapsed }),
   setContextPanelCollapsed: (collapsed) => set({ contextPanelCollapsed: collapsed }),
-  setShowSettings: (show) => set({ showSettings: show }),
+  setShowSettings: (show) =>
+    set(show ? { showSettings: true, showBIReports: false } : { showSettings: false }),
   setSettingsTab: (tab) => set({ settingsTab: tab }),
+  setShowBIReports: (show) =>
+    set(show ? { showBIReports: true, showSettings: false } : { showBIReports: false }),
 
   // Permission actions
   setPendingPermission: (permission) => set({ pendingPermission: permission }),

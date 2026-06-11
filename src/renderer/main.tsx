@@ -1,6 +1,7 @@
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { LicenseGate } from './components/LicenseGate';
 import './styles/globals.css';
 import 'katex/dist/katex.min.css';
 import 'highlight.js/styles/github-dark-dimmed.min.css';
@@ -78,6 +79,8 @@ installRendererDiagnostics();
 // Note: StrictMode removed to prevent double-rendering issues with IPC
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <ErrorBoundary>
-    <App />
+    <LicenseGate>
+      <App />
+    </LicenseGate>
   </ErrorBoundary>
 );

@@ -1516,9 +1516,9 @@ export class ConfigStore {
    * Apply config to environment variables
    * This should be called before creating sessions
    *
-   * 环境变量映射：
-   * - OpenAI 直连: OPENAI_API_KEY = apiKey, OPENAI_BASE_URL 可选
-   * - Anthropic 直连: ANTHROPIC_API_KEY = apiKey
+   * Environment variable mapping:
+   * - OpenAI direct: OPENAI_API_KEY = apiKey, OPENAI_BASE_URL optional
+   * - Anthropic direct: ANTHROPIC_API_KEY = apiKey
    * - Custom Anthropic: ANTHROPIC_API_KEY = apiKey
    * - OpenRouter: ANTHROPIC_AUTH_TOKEN = apiKey, ANTHROPIC_API_KEY = '' (proxy mode)
    */

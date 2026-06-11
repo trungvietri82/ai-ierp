@@ -39,7 +39,7 @@
   "scripts": {
     "dev": "npm run download:node && npm run build:wsl-agent && npm run build:lima-agent && npm run build:mcp && vite",
     "dev:with-python": "npm run download:node && npm run prepare:python && npm run build:wsl-agent && npm run build:lima-agent && npm run build:mcp && vite",
-    "build": "npm run download:node && npm run prepare:gui-tools && npm run prepare:python:all && npm run build:wsl-agent && npm run build:lima-agent && npm run build:mcp && tsc && vite build && node scripts/pre-build-check.js && electron-builder",
+    "build": "npm run download:node && npm run prepare:pptx-runtime && npm run prepare:gui-tools && npm run prepare:python:all && npm run build:wsl-agent && npm run build:lima-agent && npm run build:mcp && tsc && vite build && node scripts/pre-build-check.js && electron-builder",
     "build:win": "node scripts/build-windows.js",
     "build:wsl-agent": "tsc -p src/main/sandbox/wsl-agent/tsconfig.json",
     "build:lima-agent": "tsc -p src/main/sandbox/lima-agent/tsconfig.json",
@@ -49,6 +49,7 @@
     "postinstall": "patch-package && node scripts/download-node.js && npm run rebuild",
     "prepare": "husky",
     "prepare:gui-tools": "node scripts/prepare-gui-tools.js",
+    "prepare:pptx-runtime": "node scripts/prepare-pptx-runtime.js",
     "prepare:python": "node scripts/prepare-python.js",
     "prepare:python:all": "node scripts/prepare-python.js --all",
     "preview": "vite preview",

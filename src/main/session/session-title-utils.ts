@@ -15,7 +15,13 @@ export function shouldGenerateTitle(input: TitleDecisionInput): boolean {
   return input.currentTitle === defaultTitle || input.currentTitle === DEFAULT_SESSION_TITLE;
 }
 
-export function normalizeGeneratedTitle(value: string | null | undefined): string | null {
+/** Han (Chinese) + Japanese kana ranges — used to detect a wrong-language title. */
+const CJK_RE = /[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff]/;
+
+export function normalizeGeneratedTitle(
+  value: string | null | undefined,
+  sourcePrompt?: string
+): string | null {
   if (!value) return null;
   const firstLine = value
     .split(/\r?\n/)
@@ -30,21 +36,26 @@ export function normalizeGeneratedTitle(value: string | null | undefined): strin
   ) {
     return null;
   }
+  // Guard against models (e.g. DeepSeek) defaulting to Chinese: if the title has
+  // CJK but the user's request does not, reject it so we fall back to a title
+  // derived from the user's own (e.g. Vietnamese) words.
+  if (sourcePrompt && CJK_RE.test(normalized) && !CJK_RE.test(sourcePrompt)) {
+    return null;
+  }
   return normalized.slice(0, 120);
 }
 
 export function buildTitlePrompt(prompt: string): string {
   return [
-    'Generate a short title for the following user request. Rules:',
-    '- Max 15 characters (Chinese) or 6 words (English)',
-    '- Reply in the same language as the user request',
-    '- No quotes, numbering, or punctuation at the end',
+    'Generate a short conversation title for the user request below.',
+    'Rules:',
+    '- Write the title in the SAME language as the user request.',
+    '  If the user wrote Vietnamese, the title MUST be Vietnamese.',
+    '- NEVER use Chinese characters unless the user actually wrote in Chinese.',
+    '- Max 6 words (about 30 characters).',
+    '- No quotes, no numbering, no trailing punctuation.',
+    '- Reply with ONLY the title text, nothing else.',
     '',
-    '请根据用户请求生成一个简短的对话标题：',
-    '- 不超过15个字',
-    '- 同语言输出',
-    '- 不要加引号或编号',
-    '',
-    `User request / 用户请求：${prompt.trim()}`,
+    `User request: ${prompt.trim()}`,
   ].join('\n');
 }

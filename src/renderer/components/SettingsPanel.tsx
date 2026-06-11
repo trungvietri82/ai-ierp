@@ -11,6 +11,7 @@ import {
   Globe,
   ChevronRight,
   BrainCircuit,
+  Coins,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useWindowSize } from '../hooks/useWindowSize';
@@ -24,6 +25,7 @@ import { SettingsSchedule } from './settings/SettingsSchedule';
 import { SettingsGeneral } from './settings/SettingsGeneral';
 import { SettingsLogs } from './settings/SettingsLogs';
 import { SettingsMemory } from './settings/SettingsMemory';
+import { SettingsTokenUsage } from './settings/SettingsTokenUsage';
 import { useBranding } from '../store/selectors';
 
 interface SettingsPanelProps {
@@ -48,6 +50,7 @@ type TabId =
   | 'memory'
   | 'schedule'
   | 'remote'
+  | 'usage'
   | 'logs'
   | 'general';
 
@@ -59,6 +62,7 @@ const VALID_TABS = new Set<TabId>([
   'memory',
   'schedule',
   'remote',
+  'usage',
   'logs',
   'general',
 ]);
@@ -149,9 +153,15 @@ export function SettingsPanel({ onClose, initialTab = 'api' }: SettingsPanelProp
     },
     {
       id: 'remote' as TabId,
-      label: t('settings.remote', '远程控制'),
+      label: t('settings.remote', 'Remote control'),
       icon: Wifi,
       description: t('settings.remoteDesc', { appName }),
+    },
+    {
+      id: 'usage' as TabId,
+      label: 'Token & Chi phí',
+      icon: Coins,
+      description: 'Thống kê token và chi phí theo từng câu hỏi',
     },
     {
       id: 'logs' as TabId,
@@ -278,6 +288,9 @@ export function SettingsPanel({ onClose, initialTab = 'api' }: SettingsPanelProp
                 {viewedTabs.has('remote') && (
                   <RemoteControlPanel isActive={activeTab === 'remote'} />
                 )}
+              </div>
+              <div className={activeTab === 'usage' ? '' : 'hidden'}>
+                {viewedTabs.has('usage') && <SettingsTokenUsage isActive={activeTab === 'usage'} />}
               </div>
               <div className={activeTab === 'logs' ? '' : 'hidden'}>
                 {viewedTabs.has('logs') && <SettingsLogs isActive={activeTab === 'logs'} />}

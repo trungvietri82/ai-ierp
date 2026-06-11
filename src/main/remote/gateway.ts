@@ -1,6 +1,6 @@
 /**
  * Remote Gateway
- * WebSocket 控制平面，管理远程连接和消息路由
+ * WebSocket control plane that manages remote connections and message routing
  */
 
 import * as crypto from 'crypto';
@@ -269,7 +269,7 @@ export class RemoteGateway extends EventEmitter {
           channelId: message.channelId,
           content: {
             type: 'text',
-            text: '⚠️ 您没有权限使用此机器人。请联系管理员获取访问权限。',
+            text: '⚠️ You do not have permission to use this bot. Please contact an administrator for access.',
           },
           replyTo: message.id,
         });
@@ -410,7 +410,7 @@ export class RemoteGateway extends EventEmitter {
           channelId: message.channelId,
           content: {
             type: 'text',
-            text: '✅ 配对成功！您现在可以开始使用机器人了。',
+            text: '✅ Pairing successful! You can now start using the bot.',
           },
           replyTo: message.id,
         });
@@ -429,7 +429,7 @@ export class RemoteGateway extends EventEmitter {
           channelId: message.channelId,
           content: {
             type: 'text',
-            text: `请输入配对码进行验证。\n\n您的配对码是: **${existing.code}**\n\n请将此配对码发送给管理员进行确认，或直接回复配对码完成配对。`,
+            text: `Please enter the pairing code to verify.\n\nYour pairing code is: **${existing.code}**\n\nSend this pairing code to an administrator for confirmation, or reply with the pairing code directly to complete pairing.`,
           },
           replyTo: message.id,
         });
@@ -455,7 +455,7 @@ export class RemoteGateway extends EventEmitter {
       channelId: message.channelId,
       content: {
         type: 'text',
-        text: `👋 您好！首次使用需要进行配对验证。\n\n您的配对码是: **${code}**\n\n请将此配对码发送给管理员进行确认。配对码有效期10分钟。`,
+        text: `👋 Hello! First-time use requires pairing verification.\n\nYour pairing code is: **${code}**\n\nSend this pairing code to an administrator for confirmation. The pairing code is valid for 10 minutes.`,
       },
       replyTo: message.id,
     });
@@ -777,7 +777,36 @@ export class RemoteGateway extends EventEmitter {
         });
       }
     } else {
-      // Other auth modes don't require token for WS
+      // Non-token modes (allowlist/pairing/open): auto-auth is only acceptable
+      // for a purely-local gateway. If the gateway is network-exposed (bound to
+      // 0.0.0.0 or fronted by an active tunnel), a WS client could be anyone on
+      // the network/internet — so require a configured token even here. This
+      // closes the "ngrok -> unauthenticated remote agent execution" path.
+      const exposed = this.isNetworkExposed();
+      if (exposed) {
+        if (this.config.auth.token && token === this.config.auth.token) {
+          client.authenticated = true;
+          this.sendWSMessage(client.ws, {
+            type: 'auth_result',
+            payload: { success: true },
+            requestId: message.requestId,
+          });
+          log('[Gateway] WS client authenticated (exposed gateway, token ok):', client.id);
+        } else {
+          log('[Gateway] WS auth REJECTED: token required on network-exposed gateway:', client.id);
+          this.sendWSMessage(client.ws, {
+            type: 'auth_result',
+            payload: {
+              success: false,
+              error:
+                'Gateway đang phơi ra mạng (bind 0.0.0.0 hoặc tunnel) — bắt buộc cấu hình auth token cho WebSocket.',
+            },
+            requestId: message.requestId,
+          });
+        }
+        return;
+      }
+      // Local-only (loopback bind, no tunnel): auto-auth is acceptable.
       client.authenticated = true;
       this.sendWSMessage(client.ws, {
         type: 'auth_result',
@@ -785,6 +814,13 @@ export class RemoteGateway extends EventEmitter {
         requestId: message.requestId,
       });
     }
+  }
+
+  /** True when the gateway is reachable beyond loopback (LAN bind or active tunnel). */
+  private isNetworkExposed(): boolean {
+    if (this.config.bind === '0.0.0.0') return true;
+    if (this.config.tunnel?.enabled) return true;
+    return false;
   }
 
   private async handleWSClientMessage(client: WSClient, message: WSMessage): Promise<void> {

@@ -13,7 +13,7 @@
  * stays free of electron / electron-store dependencies and remains unit-
  * testable in isolation.
  */
-import Store from 'electron-store';
+import Store, { type Options as StoreOptions } from 'electron-store';
 
 interface PermissionsSchema {
   alwaysAllowedTools: string[];
@@ -23,7 +23,7 @@ const store = new Store<PermissionsSchema>({
   projectName: 'ai-ierp',
   name: 'permissions',
   defaults: { alwaysAllowedTools: [] },
-});
+} as StoreOptions<PermissionsSchema> & { projectName?: string });
 
 function normalize(tool: string): string {
   return tool.trim().toLowerCase();

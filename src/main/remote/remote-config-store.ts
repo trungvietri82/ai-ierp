@@ -1,6 +1,6 @@
 /**
  * Remote Config Store
- * 远程控制配置存储
+ * Storage for remote control configuration
  */
 
 import Store from 'electron-store';

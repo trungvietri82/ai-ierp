@@ -548,6 +548,17 @@ export function WelcomeView() {
                 <FolderOpen className="w-4 h-4" />
               </button>
 
+              {workingDir && (
+                <button
+                  type="button"
+                  onClick={handleSelectFolder}
+                  title={workingDir}
+                  className="max-w-[200px] truncate text-xs text-text-secondary hover:text-text-primary transition-colors"
+                >
+                  {workingDir.split(/[\\/]/).filter(Boolean).pop() || workingDir}
+                </button>
+              )}
+
               {isElectron && (
                 <ComposerActionsMenu
                   connectors={mcpConnectors}

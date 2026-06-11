@@ -354,6 +354,38 @@ function initializeSchema(database: Database.Database): void {
     ON scheduled_tasks(enabled, next_run_at)
   `);
 
+    // BI reports: saved dashboards. Two kinds:
+    //  - 'static'  : html_content holds a fixed HTML snapshot, rendered as-is.
+    //  - 'dynamic' : html_content is a shell reading window.__REPORT_DATA__;
+    //                params_json / queries_json / binding_json drive a
+    //                deterministic re-fill via MCP at view time (no LLM).
+    // No FK to sessions so a report survives deletion of its source chat.
+    database.exec(`
+    CREATE TABLE IF NOT EXISTS bi_reports (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      type TEXT NOT NULL,
+      category TEXT,
+      session_id TEXT,
+      html_content TEXT,
+      params_json TEXT,
+      queries_json TEXT,
+      binding_json TEXT,
+      last_data_json TEXT,
+      created_at INTEGER NOT NULL,
+      updated_at INTEGER NOT NULL
+    )
+  `);
+    database.exec(`
+    CREATE INDEX IF NOT EXISTS idx_bi_reports_type
+    ON bi_reports(type, created_at)
+  `);
+    ensureColumn(database, 'bi_reports', 'description', 'description TEXT');
+    ensureColumn(database, 'bi_reports', 'prompt_template', 'prompt_template TEXT');
+    ensureColumn(database, 'bi_reports', 'created_by', 'created_by TEXT');
+    ensureColumn(database, 'bi_reports', 'file_type', 'file_type TEXT');
+    ensureColumn(database, 'bi_reports', 'file_path', 'file_path TEXT');
+
     log('[Database] Schema initialized');
   } catch (error) {
     logError('[Database] Schema initialization failed:', error);

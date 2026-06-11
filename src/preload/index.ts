@@ -28,6 +28,15 @@ import type {
 } from '../renderer/types';
 import type { DiagnosticInput, DiagnosticResult } from '../renderer/types';
 import type {
+  BIReport,
+  BIReportSummary,
+  SaveStaticReportInput,
+  SaveDynamicReportInput,
+  SaveAiReportInput,
+  SessionReportAnalysis,
+} from '../shared/bi-report';
+import type { TokenUsageRecord } from '../shared/token-usage';
+import type {
   McpServerConfig,
   McpTool,
   McpServerStatus,
@@ -203,6 +212,54 @@ contextBridge.exposeInMainWorld('electronAPI', {
       ipcRenderer.invoke('config.diagnose', input),
     discoverLocal: (payload?: { baseUrl?: string }): Promise<LocalOllamaDiscoveryResult> =>
       ipcRenderer.invoke('config.discover-local', payload),
+  },
+
+  // License (offline Ed25519 activation gate)
+  license: {
+    status: (): Promise<{
+      valid: boolean;
+      reason?: string;
+      machineId: string;
+      payload?: { sub: string; exp: number | null; mid: string | null };
+    }> => ipcRenderer.invoke('license.status'),
+    activate: (
+      key: string
+    ): Promise<{
+      valid: boolean;
+      reason?: string;
+      machineId: string;
+      payload?: { sub: string; exp: number | null; mid: string | null };
+    }> => ipcRenderer.invoke('license.activate', key),
+    deactivate: (): Promise<{ ok: boolean }> => ipcRenderer.invoke('license.deactivate'),
+    machineId: (): Promise<string> => ipcRenderer.invoke('license.machineId'),
+  },
+
+  // BI Reports (saved dashboards)
+  bi: {
+    list: (): Promise<BIReportSummary[]> => ipcRenderer.invoke('bi.list'),
+    get: (id: string): Promise<BIReport | null> => ipcRenderer.invoke('bi.get', id),
+    saveStatic: (input: SaveStaticReportInput): Promise<BIReport> =>
+      ipcRenderer.invoke('bi.saveStatic', input),
+    saveDynamic: (input: SaveDynamicReportInput): Promise<BIReport> =>
+      ipcRenderer.invoke('bi.saveDynamic', input),
+    saveAi: (input: SaveAiReportInput): Promise<BIReport> =>
+      ipcRenderer.invoke('bi.saveAi', input),
+    analyzeSession: (sessionId: string): Promise<SessionReportAnalysis> =>
+      ipcRenderer.invoke('bi.analyzeSession', sessionId),
+    duplicate: (id: string, title: string, description: string | null): Promise<BIReport> =>
+      ipcRenderer.invoke('bi.duplicate', id, title, description),
+    rename: (id: string, title: string): Promise<{ ok: boolean }> =>
+      ipcRenderer.invoke('bi.rename', id, title),
+    delete: (id: string): Promise<{ ok: boolean }> => ipcRenderer.invoke('bi.delete', id),
+    render: (
+      id: string,
+      paramValues?: Record<string, string | number>
+    ): Promise<{ filePath: string }> => ipcRenderer.invoke('bi.render', id, paramValues),
+  },
+
+  // Token & cost usage log
+  usage: {
+    getLog: (): Promise<TokenUsageRecord[]> => ipcRenderer.invoke('usage.getLog'),
   },
 
   // Branding (white-label name + logo)
@@ -552,6 +609,40 @@ declare global {
         }) => Promise<ProviderModelInfo[]>;
         diagnose: (input: DiagnosticInput) => Promise<DiagnosticResult>;
         discoverLocal: (payload?: { baseUrl?: string }) => Promise<LocalOllamaDiscoveryResult>;
+      };
+      license: {
+        status: () => Promise<{
+          valid: boolean;
+          reason?: string;
+          machineId: string;
+          payload?: { sub: string; exp: number | null; mid: string | null };
+        }>;
+        activate: (key: string) => Promise<{
+          valid: boolean;
+          reason?: string;
+          machineId: string;
+          payload?: { sub: string; exp: number | null; mid: string | null };
+        }>;
+        deactivate: () => Promise<{ ok: boolean }>;
+        machineId: () => Promise<string>;
+      };
+      bi: {
+        list: () => Promise<BIReportSummary[]>;
+        get: (id: string) => Promise<BIReport | null>;
+        saveStatic: (input: SaveStaticReportInput) => Promise<BIReport>;
+        saveDynamic: (input: SaveDynamicReportInput) => Promise<BIReport>;
+        saveAi: (input: SaveAiReportInput) => Promise<BIReport>;
+        analyzeSession: (sessionId: string) => Promise<SessionReportAnalysis>;
+        duplicate: (id: string, title: string, description: string | null) => Promise<BIReport>;
+        rename: (id: string, title: string) => Promise<{ ok: boolean }>;
+        delete: (id: string) => Promise<{ ok: boolean }>;
+        render: (
+          id: string,
+          paramValues?: Record<string, string | number>
+        ) => Promise<{ filePath: string }>;
+      };
+      usage: {
+        getLog: () => Promise<TokenUsageRecord[]>;
       };
       branding: {
         get: () => Promise<{ appName: string; logoDataUrl: string }>;

@@ -8,7 +8,7 @@
  * Defaults target the iERP rollout (name "AI iERP", bundled iERP logo asset),
  * but everything is overridable and resettable from the UI.
  */
-import Store from 'electron-store';
+import Store, { type Options as StoreOptions } from 'electron-store';
 
 export const DEFAULT_APP_NAME = 'AI iERP';
 
@@ -28,7 +28,7 @@ const store = new Store<BrandingSchema>({
   projectName: 'ai-ierp',
   name: 'branding',
   defaults: { appName: '', logoDataUrl: '' },
-});
+} as StoreOptions<BrandingSchema> & { projectName?: string });
 
 /** Current branding with defaults applied. */
 export function getBranding(): Branding {

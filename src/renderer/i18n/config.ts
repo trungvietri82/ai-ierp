@@ -7,8 +7,8 @@ import zhTranslations from './locales/zh.json';
 import viTranslations from './locales/vi.json';
 
 i18n
-  .use(LanguageDetector) // 自动检测浏览器语言
-  .use(initReactI18next) // 初始化 react-i18next
+  .use(LanguageDetector) // Auto-detect browser language
+  .use(initReactI18next) // Initialize react-i18next
   .init({
     resources: {
       en: {
@@ -21,16 +21,16 @@ i18n
         translation: viTranslations,
       },
     },
-    fallbackLng: 'en', // 默认语言
-    supportedLngs: ['en', 'zh', 'vi'], // 支持的语言
+    fallbackLng: 'en', // Default language
+    supportedLngs: ['en', 'zh', 'vi'], // Supported languages
     interpolation: {
-      escapeValue: false, // React 已经处理了 XSS
+      escapeValue: false, // React already handles XSS
     },
-    pluralSeparator: '_', // 复数分隔符
-    contextSeparator: '_', // 上下文分隔符
+    pluralSeparator: '_', // Plural separator
+    contextSeparator: '_', // Context separator
     detection: {
-      order: ['localStorage', 'navigator'], // 先检查 localStorage，再检查浏览器语言
-      caches: ['localStorage'], // 将语言选择保存到 localStorage
+      order: ['localStorage', 'navigator'], // Check localStorage first, then browser language
+      caches: ['localStorage'], // Persist the language choice to localStorage
       lookupLocalStorage: 'i18nextLng', // localStorage key
     },
   });
