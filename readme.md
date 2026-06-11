@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="resources/logo.png" alt="Open Cowork Logo" width="280" />
+  <img src="resources/logo.png" alt="Ai-iERP Logo" width="280" />
 </p>
 
-<h1 align="center">🚀 Open Cowork: Your Personal AI Agent Desktop App</h1>
+<h1 align="center">🚀 Ai-iERP: Your Personal AI Agent Desktop App</h1>
 
 <p align="center">
   • Open Source Claude Cowork • One-Click Install 
@@ -27,18 +27,18 @@
 
 ---
 
-Open Cowork is a free, open-source AI agent desktop application for Windows and macOS. It wraps Claude Code, OpenAI, Gemini, DeepSeek, and other AI models into a user-friendly GUI with one-click installation — no coding required. Key capabilities include VM-level sandbox isolation (WSL2 on Windows, Lima on macOS), a built-in Skills system for generating PPTX, DOCX, XLSX, and PDF documents, MCP (Model Context Protocol) integration for connecting to browsers, Notion, and other desktop apps, GUI automation via computer use, and remote control through Feishu (Lark) and Slack. Open Cowork is the open-source implementation of Claude Cowork, designed to make AI-powered desktop automation accessible to everyone.
+Ai-iERP is a free, open-source AI agent desktop application for Windows and macOS. It wraps Claude Code, OpenAI, Gemini, DeepSeek, and other AI models into a user-friendly GUI with one-click installation — no coding required. Key capabilities include VM-level sandbox isolation (WSL2 on Windows, Lima on macOS), a built-in Skills system for generating PPTX, DOCX, XLSX, and PDF documents, MCP (Model Context Protocol) integration for connecting to browsers, Notion, and other desktop apps, GUI automation via computer use, and remote control through Feishu (Lark) and Slack. Ai-iERP is the open-source implementation of Claude Cowork, designed to make AI-powered desktop automation accessible to everyone.
 
 ---
 
 ## 📖 Introduction
 
-**Open Cowork** is an open-source implementation of **Claude Cowork**, with one-click installers for **Windows** and **macOS**—no coding required.
+**Ai-iERP** is an open-source implementation of **Claude Cowork**, with one-click installers for **Windows** and **macOS**—no coding required.
 
 It provides a sandboxed workspace where AI can manage files, generate professional outputs (PPTX, DOCX, XLSX, etc.) through our built-in **Skills** system, and **connect to desktop apps via MCP** (browser, Notion, etc.) for better collaboration.
 
 > [!WARNING]
-> **Disclaimer**: Open Cowork is an AI collaboration tool. Please exercise caution with its operations, especially when authorizing file modifications or deletions. We support VM-based sandbox isolation, but some operations may still carry risks.
+> **Disclaimer**: Ai-iERP is an AI collaboration tool. Please exercise caution with its operations, especially when authorizing file modifications or deletions. We support VM-based sandbox isolation, but some operations may still carry risks.
 
 ---
 
@@ -69,7 +69,7 @@ It provides a sandboxed workspace where AI can manage files, generate profession
 
 ## 🎬 Demo
 
-See Open Cowork in action:
+See Ai-iERP in action:
 
 ### 1. Folder Organization & Cleanup 📂
 
@@ -131,7 +131,7 @@ To build the installer locally: `npm run build`
 
 ### Security Configuration: 🔒 Sandbox Support
 
-Open Cowork provides **multi-level sandbox protection** to keep your system safe:
+Ai-iERP provides **multi-level sandbox protection** to keep your system safe:
 
 | Level        | Platform | Technology | Description                                    |
 | ------------ | -------- | ---------- | ---------------------------------------------- |
@@ -152,7 +152,7 @@ Open Cowork provides **multi-level sandbox protection** to keep your system safe
 
 ```bash
 brew install lima
-# Open Cowork will automatically create and manage a Lima VM (internal Lima name: 'claude-sandbox')
+# Ai-iERP will automatically create and manage a Lima VM (internal Lima name: 'claude-sandbox')
 ```
 
 ---
@@ -201,7 +201,7 @@ You need an API key to power the agent. We support **OpenRouter**, **Anthropic**
 
 ## 🧰 Skills Library
 
-Open Cowork ships with built-in skills under `.claude/skills/`, and supports user-added or custom skills, including:
+Ai-iERP ships with built-in skills under `.claude/skills/`, and supports user-added or custom skills, including:
 
 - `pptx` for PowerPoint generation
 - `docx` for Word document processing
@@ -286,35 +286,35 @@ See our full **[ROADMAP.md](ROADMAP.md)** for detailed plans.
 
 ## ❓ FAQ
 
-**What is Open Cowork?**
-Open Cowork is a free, open-source desktop application that provides a local AI agent workspace. It wraps AI models (Claude, GPT, Gemini, DeepSeek, etc.) into a GUI with one-click installers for Windows and macOS — no terminal or coding knowledge required.
+**What is Ai-iERP?**
+Ai-iERP is a free, open-source desktop application that provides a local AI agent workspace. It wraps AI models (Claude, GPT, Gemini, DeepSeek, etc.) into a GUI with one-click installers for Windows and macOS — no terminal or coding knowledge required.
 
-**How is Open Cowork different from Claude Cowork?**
-Open Cowork is the open-source implementation of Claude Cowork. It adds multi-model support (not just Claude), GUI automation via computer use, remote control through Feishu/Slack, and VM-level sandbox isolation. See the [feature comparison table](#features) for details.
+**How is Ai-iERP different from Claude Cowork?**
+Ai-iERP is the open-source implementation of Claude Cowork. It adds multi-model support (not just Claude), GUI automation via computer use, remote control through Feishu/Slack, and VM-level sandbox isolation. See the [feature comparison table](#features) for details.
 
-**What AI models does Open Cowork support?**
+**What AI models does Ai-iERP support?**
 Claude (via Anthropic or OpenRouter), OpenAI-compatible APIs, and Chinese models including GLM (Zhipu AI), MiniMax, and Kimi. Any provider offering an OpenAI-compatible API endpoint can be configured.
 
-**Is Open Cowork free?**
-Yes. Open Cowork itself is completely free and open-source under the MIT license. You only need to pay for the AI model API usage from your chosen provider.
+**Is Ai-iERP free?**
+Yes. Ai-iERP itself is completely free and open-source under the MIT license. You only need to pay for the AI model API usage from your chosen provider.
 
-**Does Open Cowork work on Linux?**
-Currently, Open Cowork provides pre-built installers for Windows and macOS only. Linux users can build from source — see the [Build from Source](#installation) section.
+**Does Ai-iERP work on Linux?**
+Currently, Ai-iERP provides pre-built installers for Windows and macOS only. Linux users can build from source — see the [Build from Source](#installation) section.
 
 **How does sandbox isolation work?**
-Open Cowork offers multi-level protection: basic path-based restrictions on all platforms, and enhanced VM-level isolation using WSL2 (Windows) or Lima (macOS). When a VM is available, all commands execute inside an isolated Linux environment, protecting your host system.
+Ai-iERP offers multi-level protection: basic path-based restrictions on all platforms, and enhanced VM-level isolation using WSL2 (Windows) or Lima (macOS). When a VM is available, all commands execute inside an isolated Linux environment, protecting your host system.
 
 **What are Skills and how do I create custom ones?**
-Skills are built-in workflows for specific tasks like generating PPTX, DOCX, PDF, or XLSX files. Open Cowork ships with default skills under `.claude/skills/` and includes a `skill-creator` tool to help you build your own custom skills.
+Skills are built-in workflows for specific tasks like generating PPTX, DOCX, PDF, or XLSX files. Ai-iERP ships with default skills under `.claude/skills/` and includes a `skill-creator` tool to help you build your own custom skills.
 
 **What is MCP and how does it work?**
-MCP (Model Context Protocol) lets AI connect to external tools and services. Open Cowork supports MCP connectors for browsers, Notion, and other desktop apps — extending the AI's capabilities beyond just file management and code.
+MCP (Model Context Protocol) lets AI connect to external tools and services. Ai-iERP supports MCP connectors for browsers, Notion, and other desktop apps — extending the AI's capabilities beyond just file management and code.
 
 **How do I set up remote control via Feishu or Slack?**
-Open Cowork supports remote control through Feishu (Lark) and Slack integration, allowing you to send commands and receive results from collaboration platforms. Check the app settings for remote control configuration.
+Ai-iERP supports remote control through Feishu (Lark) and Slack integration, allowing you to send commands and receive results from collaboration platforms. Check the app settings for remote control configuration.
 
-**Is my data safe? Does Open Cowork send data to external servers?**
-Open Cowork runs locally on your machine. Your files stay in your workspace. The only external communication is with the AI model API you configure (e.g., Anthropic, OpenRouter). No data is sent to Open Cowork servers.
+**Is my data safe? Does Ai-iERP send data to external servers?**
+Ai-iERP runs locally on your machine. Your files stay in your workspace. The only external communication is with the AI model API you configure (e.g., Anthropic, OpenRouter). No data is sent to Ai-iERP servers.
 
 ---
 
@@ -343,10 +343,10 @@ Join our community for support and discussion:
 
 ## 📄 License
 
-MIT © Open Cowork Team
+MIT © Ai-iERP Team
 
 ---
 
 <p align="center">
-  Made with ❤️ by the Open Cowork Team with the help of opus4.5
+  Made with ❤️ by the Ai-iERP Team with the help of opus4.5
 </p>
