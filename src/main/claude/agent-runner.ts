@@ -68,6 +68,7 @@ import {
 } from './pi-model-resolution';
 import { buildPiSessionRuntimeSignature } from './pi-session-runtime';
 import { ThinkTagStreamParser } from './think-tag-parser';
+import { IERP_EXECUTION_RULES } from './agent-rules';
 import {
   LoopGuard,
   buildAbortUserMessage,
@@ -2173,6 +2174,7 @@ This is an isolated sandbox environment. Use ${VIRTUAL_WORKSPACE_PATH} as the ro
 3. For relative time windows like "within two days" in browsing or research tasks, assume the most recent two relevant publication days unless the user explicitly defines another date range.
 4. For bracketed placeholders like [Agent], [Topic], etc., treat the word inside brackets as the literal search keyword unless the user says otherwise.
 5. When given a task, START DOING IT. Do not restate the task in prose, do not ask for confirmation. Just execute. EXCEPTION: for multi-step tasks your first action is to create a todo-list plan via the tool (see <planning>) — that is a tool call, not "listing what you will do in text", so it does not violate this rule.`,
+        IERP_EXECUTION_RULES,
         workspaceInfoPrompt,
         `<citation_requirements>
 If your answer uses linkable content from MCP tools, include a "Sources:" section and otherwise use standard Markdown links: [Title](https://claude.ai/chat/URL).
