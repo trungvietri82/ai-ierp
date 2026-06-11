@@ -154,7 +154,7 @@ export function SaveReportDialog({
           {saveAs ? 'Lưu báo cáo (lưu thành tên khác)' : 'Lưu Dashboard'}
         </h2>
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-2 gap-3">
           {CARDS.map((c) => {
             const isDisabled = disabled[c.type];
             const active = selected === c.type;
