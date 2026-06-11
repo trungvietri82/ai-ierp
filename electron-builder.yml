@@ -1,6 +1,6 @@
-appId: com.opencowork.app
-productName: Open Cowork
-copyright: Copyright © 2026 Open Cowork Team
+appId: com.aiierp.app
+productName: AI iERP
+copyright: Copyright © 2026 AI iERP Team
 
 directories:
   output: release
@@ -61,7 +61,7 @@ asarUnpack:
   - node_modules/utf-8-validate/**/*.node
 
 win:
-  icon: resources/icon.ico
+  icon: resources/logo.png
   target:
     - target: nsis
       arch:
@@ -94,8 +94,8 @@ mac:
   entitlementsInherit: resources/entitlements.mac.plist
   extendInfo:
     LSApplicationCategoryType: public.app-category.developer-tools
-    NSScreenCaptureUsageDescription: 'Open Cowork needs screen recording access for GUI automation.'
-    NSAccessibilityUsageDescription: 'Open Cowork needs accessibility access for GUI automation.'
+    NSScreenCaptureUsageDescription: 'AI iERP needs screen recording access for GUI automation.'
+    NSAccessibilityUsageDescription: 'AI iERP needs accessibility access for GUI automation.'
   extraResources:
     - from: .bundle-resources/mcp
       to: mcp
@@ -153,7 +153,7 @@ dmg:
   contents:
     - x: 150
       y: 220
-      name: 'Open Cowork.app'
+      name: 'AI iERP.app'
     - x: 450
       y: 220
       type: link
@@ -165,5 +165,5 @@ extraMetadata:
 
 publish:
   provider: github
-  owner: OpenCoworkAI
-  repo: open-cowork
+  owner: trungvietri82
+  repo: ai-ierp

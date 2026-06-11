@@ -65,97 +65,6 @@ It provides a sandboxed workspace where AI can manage files, generate profession
 - **VM-Level Isolation**: WSL2 (Windows) and Lima (macOS) VM isolation—all commands execute in an isolated VM to protect your host system.
 - **UI Enhancements**: Beautiful and flexible UI design, system language switching, comprehensive MCP/Skills/Tools call display.
 
-<a id="demo"></a>
-
-## 🎬 Demo
-
-See Ai-iERP in action:
-
-### 1. Folder Organization & Cleanup 📂
-
-https://github.com/user-attachments/assets/dbeb0337-2d19-4b5d-a438-5220f2a87ca7
-
-### 2. Generate PPT from Files 📊
-
-https://github.com/user-attachments/assets/30299ded-0260-468f-b11d-d282bb9c97f2
-
-### 3. Generate XLSX Spreadsheets 📉
-
-https://github.com/user-attachments/assets/f57b9106-4b2c-4747-aecd-a07f78af5dfc
-
-### 4. GUI Operation🖥
-
-https://github.com/user-attachments/assets/75542c76-210f-414d-8182-1da988c148f2
-
-### 5. Remote control with Feishu(Lark) 🤖
-
-https://github.com/user-attachments/assets/05a703de-c0f5-407b-9a43-18b6a172fd74
-
----
-
-<a id="installation"></a>
-
-## 📦 Installation
-
-### Option 1: Homebrew (macOS, Recommended)
-
-```bash
-brew tap OpenCoworkAI/tap
-brew install --cask --no-quarantine open-cowork
-```
-
-> The `--no-quarantine` flag bypasses macOS Gatekeeper, so you won't see the "Apple cannot verify this app" warning.
-
-### Option 2: Download Installer
-
-Get the latest version from our [Releases Page](https://github.com/OpenCoworkAI/open-cowork/releases).
-
-| Platform                  | File Type |
-| ------------------------- | --------- |
-| **Windows**               | `.exe`    |
-| **macOS** (Apple Silicon) | `.dmg`    |
-
-### Option 3: Build from Source
-
-For developers who want to contribute or modify the codebase:
-
-```bash
-git clone https://github.com/OpenCoworkAI/open-cowork.git
-cd open-cowork
-npm install
-npm run rebuild
-npm run dev
-```
-
-To build the installer locally: `npm run build`
-
-### Security Configuration: 🔒 Sandbox Support
-
-Ai-iERP provides **multi-level sandbox protection** to keep your system safe:
-
-| Level        | Platform | Technology | Description                                    |
-| ------------ | -------- | ---------- | ---------------------------------------------- |
-| **Basic**    | All      | Path Guard | File operations restricted to workspace folder |
-| **Enhanced** | Windows  | WSL2       | Commands execute in isolated Linux VM          |
-| **Enhanced** | macOS    | Lima       | Commands execute in isolated Linux VM          |
-
-- **Windows (WSL2)**: When WSL2 is detected, all Bash commands are automatically routed to a Linux VM. The workspace is synced bidirectionally.
-- **macOS (Lima)**: When [Lima](https://lima-vm.io/) is installed (`brew install lima`), commands run in an Ubuntu VM with `/Users` mounted.
-- **Fallback**: If no VM is available, commands run natively with path-based restrictions.
-
-**Setup (Optional, Recommended)**
-
-- **Windows**: WSL2 is auto-detected if installed. [Install WSL2](https://docs.microsoft.com/en-us/windows/wsl/install)
-
-- **macOS**:
-  Lima is auto-detected if installed. Install command:
-
-```bash
-brew install lima
-# Ai-iERP will automatically create and manage a Lima VM (internal Lima name: 'claude-sandbox')
-```
-
----
 
 <a id="quick-start"></a>
 
@@ -214,7 +123,7 @@ Ai-iERP ships with built-in skills under `.claude/skills/`, and supports user-ad
 ## 🏗️ Architecture
 
 ```
-open-cowork/
+ai-iERP/
 ├── src/
 │   ├── main/                    # Electron Main Process (Node.js)
 │   │   ├── index.ts             # Main entry point
