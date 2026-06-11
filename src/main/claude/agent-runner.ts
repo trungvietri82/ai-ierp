@@ -68,7 +68,7 @@ import {
 } from './pi-model-resolution';
 import { buildPiSessionRuntimeSignature } from './pi-session-runtime';
 import { ThinkTagStreamParser } from './think-tag-parser';
-import { IERP_EXECUTION_RULES } from './agent-rules';
+import { IERP_EXECUTION_RULES, IERP_PPTX_RULES } from './agent-rules';
 import {
   LoopGuard,
   buildAbortUserMessage,
@@ -2200,6 +2200,7 @@ Never fabricate data: if you cannot actually read a file's real contents (or a t
 
 Presenting output files: after you CREATE a file (HTML report, dashboard, document, image, ...), do NOT run a shell command to open it (no start / open / xdg-open commands). Instead, end your reply by referencing the file by its name/path on its own line (e.g. "doanh_thu_2026_360.html") — the app turns it into a clickable link that previews the file in-app. Let the user decide to open it.
 </file_and_skill_handling>`,
+        IERP_PPTX_RULES,
         this.getBundledPathHints(),
       ]
         .filter((section): section is string => Boolean(section && section.trim()))

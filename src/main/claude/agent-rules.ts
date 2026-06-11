@@ -39,3 +39,30 @@ These rules are mandatory for every task and every tool call.
 - If a task matches a Skill, use the Skill instead of improvising.
 - For multi-step tasks (~3+ steps), create a todo/task-plan FIRST; keep exactly one step in-progress and mark steps done as you finish.
 </execution_rules>`;
+
+/**
+ * Targeted rules for the pptx skill's html2pptx workflow.
+ *
+ * The default flow fails on this app because node/npm are NOT on PATH, the
+ * required global deps + Playwright browser are not pre-installed, and Windows
+ * has no bundled python. These rules give the exact working sequence.
+ */
+export const IERP_PPTX_RULES = `<powerpoint_html2pptx>
+When CREATING a PowerPoint via the pptx skill (html2pptx), this exact setup is required or it fails:
+
+1. node / npm / npx are NOT on PATH. Use the bundled absolute paths from <bundled_executables>. Resolve the tools once:
+   NODE="<node path from bundled_executables>"
+   BIN="$(dirname "$NODE")"      # this dir also holds npm.cmd and npx.cmd (Windows) / npm and npx (mac/linux)
+2. Find the skill folder (it ships html2pptx.tgz). Packaged: it is under <resources>/skills/pptx. If unsure, locate it:
+   SKILL="$(dirname "$(find / -name html2pptx.tgz 2>/dev/null | head -1)")"
+3. Install the required global deps ONCE (needs internet). Skip any already installed; never reinstall in a loop:
+   "$BIN/npm.cmd" install -g pptxgenjs playwright react-icons react react-dom    # drop .cmd on mac/linux
+   "$BIN/npx.cmd" playwright install chromium
+4. Extract the library next to your build script using the confirmed absolute path:
+   mkdir -p ./html2pptx && tar -xzf "$SKILL/html2pptx.tgz" -C ./html2pptx
+5. Run the build script so require() can find the global deps:
+   NODE_PATH="$("$BIN/npm.cmd" root -g)" "$NODE" your-script.js 2>&1
+6. Windows has NO bundled python: do NOT call python3 / markitdown for create-from-scratch (html2pptx is node-only). Those python scripts only work where <bundled_executables> lists python3.
+7. Read html2pptx.md and css.md fully BEFORE writing slides. HTML slides are 960x540 px (16:9).
+8. If a step errors, fix the specific cause (missing dep? wrong path? backslashes?) — never re-run the same failing command.
+</powerpoint_html2pptx>`;
