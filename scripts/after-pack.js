@@ -80,6 +80,23 @@ module.exports = async function afterPack(context) {
 
   console.log(`\n🧹 after-pack: cleaning ${platform}-${archName} build...`);
 
+  // --- Windows: embed the iERP icon into the app .exe ---
+  // electron-builder's `signAndEditExecutable` is false (this app has no
+  // code-signing cert, so its built-in icon+sign step fails). Embed the icon
+  // here with resedit instead — no signing involved. Without this, the .exe
+  // (and therefore the taskbar / Start menu) keeps the stock Electron icon.
+  if (platform === 'win32') {
+    try {
+      const { embedIcon } = require('./embed-win-icon');
+      const exePath = path.join(appOutDir, `${context.packager.appInfo.productFilename}.exe`);
+      const icoPath = path.join(__dirname, '..', 'resources', 'icon-win.ico');
+      embedIcon(exePath, icoPath);
+      console.log(`  ✓ embedded iERP icon into ${path.basename(exePath)}`);
+    } catch (err) {
+      console.error(`  ⚠ FAILED to embed exe icon: ${err.message}`);
+    }
+  }
+
   // Determine the app resources path
   let resourcesDir;
   if (platform === 'darwin') {

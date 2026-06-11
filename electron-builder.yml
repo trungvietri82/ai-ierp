@@ -67,6 +67,10 @@ win:
       arch:
         - x64
   artifactName: ${productName}-${version}-win-${arch}.${ext}
+  # Keep false: this app has no code-signing certificate, so electron-builder's
+  # combined icon-edit + sign step fails (signtool exit 2) on the unsigned bundled
+  # exes and aborts the build. The iERP icon is embedded instead by the afterPack
+  # hook (scripts/embed-win-icon.js, using resources/icon-win.ico) — no signing.
   signAndEditExecutable: false
   extraResources:
     - from: .bundle-resources/mcp

@@ -15,6 +15,7 @@ import {
 import { useAppStore } from '../store';
 import { useIPC } from '../hooks/useIPC';
 import type { BIReport, BIReportSummary, BIReportParam } from '../../shared/bi-report';
+import { aiSquare, baocaoBI, baocaoTinh } from '../assets/report-icons';
 
 const TYPE_LABEL: Record<string, string> = {
   static: 'Tĩnh',
@@ -348,7 +349,7 @@ function TypeBadge({ report }: { report: BIReportSummary }) {
           label: 'Báo cáo BI',
           icon: <SlidersHorizontal className="h-3.5 w-3.5" />,
           grad: 'from-sky-400 to-blue-600',
-          img: '/baocaoBI.png' as string | undefined,
+          img: baocaoBI as string | undefined,
           blend: true,
         }
       : report.type === 'ai'
@@ -356,14 +357,14 @@ function TypeBadge({ report }: { report: BIReportSummary }) {
             label: 'Báo cáo AI',
             icon: <Bot className="h-3.5 w-3.5" />,
             grad: 'from-fuchsia-400 to-purple-600',
-            img: '/icon_AI_square.png' as string | undefined,
+            img: aiSquare as string | undefined,
             blend: false,
           }
         : {
             label: 'Tĩnh',
             icon: <FileText className="h-3.5 w-3.5" />,
             grad: 'from-slate-400 to-slate-600',
-            img: '/baocaotinh.jpg' as string | undefined,
+            img: baocaoTinh as string | undefined,
             blend: true,
           };
   const ft = report.fileType && report.fileType !== 'html' ? report.fileType.toUpperCase() : '';

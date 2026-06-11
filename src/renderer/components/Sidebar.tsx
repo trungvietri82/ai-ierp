@@ -2,6 +2,7 @@ import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../store';
 import { useIPC } from '../hooks/useIPC';
+import { aiSquare } from '../assets/report-icons';
 import {
   ChevronLeft,
   ChevronRight,
@@ -238,7 +239,7 @@ export function Sidebar() {
             className="w-9 h-9 rounded-2xl flex items-center justify-center bg-background hover:bg-surface-hover transition-colors text-text-primary border border-border-subtle"
             title={t('sidebar.newTask')}
           >
-            <img src="/icon_AI_square.png" alt="" className="w-4 h-4 object-contain" />
+            <img src={aiSquare} alt="" className="w-4 h-4 object-contain" />
           </button>
         </div>
 
@@ -305,7 +306,7 @@ export function Sidebar() {
           className="mt-3 w-full flex items-center gap-2 rounded-xl bg-background/60 px-3 py-2 text-left text-text-primary hover:bg-surface-hover transition-colors"
         >
           <img
-            src="/icon_AI_square.png"
+            src={aiSquare}
             alt=""
             className="w-4 h-4 object-contain flex-shrink-0"
           />

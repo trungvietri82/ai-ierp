@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { X, ExternalLink, FolderOpen, Loader2, FileText, Save, RotateCw } from 'lucide-react';
 import { useAppStore } from '../store';
 import { SaveReportDialog } from './SaveReportDialog';
+import { aiSquare, baocaoBI, baocaoTinh } from '../assets/report-icons';
 
 // NOTE: the in-app HTML preview renders the dashboard inside an Electron
 // <webview> (an isolated guest process) instead of an `srcdoc` iframe, so
@@ -10,9 +11,9 @@ import { SaveReportDialog } from './SaveReportDialog';
 // inherit the app's strict CSP (which would block them in an iframe).
 
 const REPORT_TYPE_META: Record<string, { label: string; img: string; blend: boolean }> = {
-  ai: { label: 'Báo cáo AI', img: '/icon_AI_square.png', blend: false },
-  dynamic: { label: 'Báo cáo BI', img: '/baocaoBI.png', blend: true },
-  static: { label: 'Báo cáo tĩnh', img: '/baocaotinh.jpg', blend: true },
+  ai: { label: 'Báo cáo AI', img: aiSquare, blend: false },
+  dynamic: { label: 'Báo cáo BI', img: baocaoBI, blend: true },
+  static: { label: 'Báo cáo tĩnh', img: baocaoTinh, blend: true },
 };
 
 type PreviewResult = {

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Bot, ClipboardList, Save, X, Loader2 } from 'lucide-react';
 import type { BIReportType, SessionReportAnalysis } from '../../shared/bi-report';
+import { aiSquare, baocaoTinh } from '../assets/report-icons';
 
 /**
  * "Lưu Dashboard" dialog — pick one of three report kinds:
@@ -35,7 +36,7 @@ const CARDS: {
     type: 'ai',
     title: 'Báo cáo AI',
     icon: <Bot className="h-6 w-6" />,
-    img: '/icon_AI_square.png',
+    img: aiSquare,
     desc: 'Snapshot, refresh = gọi AI',
     grad: 'from-fuchsia-400 to-purple-600 shadow-purple-500/40',
   },
@@ -43,7 +44,7 @@ const CARDS: {
     type: 'static',
     title: 'Báo cáo tĩnh',
     icon: <ClipboardList className="h-5 w-5" />,
-    img: '/baocaotinh.jpg',
+    img: baocaoTinh,
     blend: true,
     desc: 'Snapshot cố định, không refresh',
     grad: 'from-slate-400 to-slate-600 shadow-slate-500/40',

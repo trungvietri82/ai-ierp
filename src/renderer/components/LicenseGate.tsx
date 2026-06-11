@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import brandIcon from '../assets/brand-icon.png';
 
 /**
  * Blocks the whole app until a valid license is activated.
@@ -90,7 +91,7 @@ export function LicenseGate({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen w-screen items-center justify-center bg-background p-6">
       <div className="w-full max-w-md rounded-3xl border border-border-muted bg-surface p-8 shadow-xl">
         <div className="mb-6 flex flex-col items-center text-center">
-          <img src="/logo.png" alt="iERP" className="mb-4 h-16 w-16 object-contain" />
+          <img src={brandIcon} alt="iERP" className="mb-4 h-16 w-16 object-contain" />
           <h1 className="text-xl font-semibold text-text-primary">Kích hoạt AI iERP</h1>
           <p className="mt-1 text-sm text-text-secondary">
             Nhập license key để bắt đầu sử dụng ứng dụng.
